@@ -23,9 +23,9 @@ Data transformations include log-differencing and scaling to ensure stationarity
 
 
 ## Results
-**Forecast Accuracy:** The BVAR model provides robust short-term forecasts with uncertainty bounds.
-**Posterior Distributions:** Visualizations show parameter uncertainty and credible intervals.
-**Impulse Response Functions (IRFs):** Capture dynamic responses of macroeconomic variables to shocks.
+**- Forecast Accuracy:** The BVAR model provides robust short-term forecasts with uncertainty bounds.
+**- Posterior Distributions:** Visualizations show parameter uncertainty and credible intervals.
+**- Impulse Response Functions (IRFs):** Capture dynamic responses of macroeconomic variables to shocks.
 
 
 ## Conclusion
