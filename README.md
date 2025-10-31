@@ -1,43 +1,40 @@
-# Nowcasting-Canada-Macro-BVAR
+# Nowcasting Canada — Macro BVAR
 
-This project applies Bayesian Vector Autoregression (BVAR) to nowcast Canadian macroeconomic indicators such as GDP growth, inflation, and unemployment. The goal is to leverage Bayesian priors to improve forecasting accuracy in environments with limited data and high uncertainty. This project was implemented at the start of Covid-19 pandamic to anlayze the Canadian economy response to the different possible future shocks.
+## Introduction
+This project (developed in response and at the start of the COVID‑19 pandemic) demonstrates Bayesian vector autoregression (BVAR) applied to Canadian macroeconomic indicators to evaluate how alternative shock scenarios (for example, housing-price) affect short-term forecasts of macro variables. The implementation is Colab and integrates R's `BVAR` package with Python via `rpy2`, producing interactive Plotly visualizations embedded in the notebook.
 
-The notebook demonstrates:
+## Very short summary of the data
+- The notebook uses ~monthly macro series (CPI, HPI, Housing Starts, Nominal household income, unemployment, and a large set of FRED‑MD variables). Series are transformed for stationarity (log diffs, differences) and merged.
+- All the variables are studies using correlation matrix, correlation cluster dendoggram and other visual means.
 
-## Data preprocessing and transformation of Canadian macroeconomic time series.
-- Specification of Minnesota and shrinkage priors for BVAR.
-- Posterior sampling using Gibbs sampling.
-- Forecast generation with credible intervals.
+## Models used and implemented
+- Core model: Bayesian Vector Autoregression (BVAR) estimated with the R package `BVAR`.
+- Priors tested and demonstrated in the notebook:
+	- Minnesota / Litterman prior (bv_minnesota) — standard shrinkage toward random-walk behavior.
+	- Sum‑of‑coefficients (SOC) prior (bv_soc) — (Doan et al. (1984)).
+	- Single‑unit‑root (SUR) prior (bv_sur / bv_dummy) — (Sims (1993), SIms and Zha (1998))
+- Estimation details: hierarchical prior selection via `bv_priors`, Metropolis‑Hastings (bv_metropolis / bv_mh) tuning for hyperparameters.
 
-
-## Data Used
-More than 100 Canadian macroeconomic indicators sourced from official datasets (e.g., GDP, CPI, unemployment).
-
-Data transformations include log-differencing and scaling to ensure stationarity.
-
-
-## Models Implemented
-- Feature selection (Correlation matrix + Clustering Dendogram)
-- Bayesian VAR (BVAR) implemented with 3 different priors (Sum of Coefficients (Doan et al. (1984)), Single unit root prior (Sims (1993), SIms and Zha (1998)), and Litterman/Minnesota prior setttings).
-- Emplyoing Markov Chain Monte Carlo (Metropolis-Hastings settings)
-- Analyzing Model Convergence via trace and density plots:
-
-  
+## Model convergence results
+- The notebook includes standard Markov chain Monte Carlo (MCMC) diagnostics: trace plots and density plots for hyperparameters and selected coefficients, Geweke within-chain diagnostics, and Gelman–Rubin (potential scale reduction) across parallel chains (via `as.mcmc()` and `gelman.diag()`).
+- Trace and Density plots:
+![IRF Function Results](Figs/IRF.png)
 - Model Residuals:
+![Model Residuals](Figs/Residuals.png)
 
-  
+- Example settings used in the notebook (illustrative): n_draw=15000, n_burn=5000, n_thin=1; Metropolis tuning with `scale_hess` and `adjust_acc` to target acceptance rates (0.25–0.45). Parallel runs are collected as a list of `bvar` objects and converted to Python for plotting.
+- Practical note: the notebook demonstrates visually acceptable convergence for the example runs:
+
+## Conclusion (resume-ready summary)
+- Demonstrates application of Bayesian time-series modeling (BVAR) to macro nowcasting and scenario analysis.
+
+- Model short-term forecasts:
+![Model Forecasts](Figs/Model_Forecasts.jpg)
+- Results of Model Impulse Response Function:
+![IRF Function Results](Figs/IRF.png)
 
 
-## Results
-**- Forecast Accuracy:** The BVAR model provides robust short-term forecasts with uncertainty bounds.
 
-**- Posterior Distributions:** Visualizations show parameter uncertainty and credible intervals.
-
-**- Impulse Response Functions (IRFs):** Capture dynamic responses of macroeconomic variables to shocks:
-
-
-## Conclusion
-The BVAR approach improves forecast reliability by incorporating prior beliefs and uncertainty quantification. This methodology is particularly useful for policy analysis and real-time decision-making in macroeconomics
 
 
 
