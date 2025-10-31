@@ -24,10 +24,15 @@ Here is a model results snapshot showing the impact of a Canada CPI shock on Can
 - The notebook includes standard Markov chain Monte Carlo (MCMC) diagnostics: trace and density plots for hyperparameters and selected coefficients, Geweke within‑chain diagnostics, and Gelman–Rubin (potential scale reduction) across parallel chains (via R's `coda` functions such as `as.mcmc()` and `gelman.diag()`).
 
 - Trace and density plots (MCMC diagnostics):
+  
 ![Convergence](Figs/Convergence-Analysis.png)
+
 - Model residuals and forecast plots:
+  
 ![Residuals](Figs/Residuals.png)
+
 - Impulse Response Function (IRF):
+  
 ![IRF Function Results](Figs/IRF.png)
 
 Example settings used in the notebook (illustrative): `n_draw=15000`, `n_burn=5000`, `n_thin=1`; Metropolis tuning with `scale_hess` and `adjust_acc` to target acceptance rates (~0.25–0.45). Parallel runs are collected as a list of `bvar` objects and converted to Python for plotting. The notebook shows visually acceptable convergence for the example runs, but diagnostics should be re-checked if you change data or priors.
