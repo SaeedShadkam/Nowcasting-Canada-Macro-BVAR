@@ -37,7 +37,7 @@ Here is a model results snapshot showing the impact of a Canada CPI shock on Can
 
 Example settings used in the notebook (illustrative): `n_draw=15000`, `n_burn=5000`, `n_thin=1`; Metropolis tuning with `scale_hess` and `adjust_acc` to target acceptance rates (~0.25–0.45). Parallel runs are collected as a list of `bvar` objects and converted to Python for plotting. The notebook shows visually acceptable convergence for the example runs, but diagnostics should be re-checked if you change data or priors.
 
-## Conclusion (resume-ready summary)
+## Conclusion
 - Demonstrates application of Bayesian time‑series modeling (BVAR) to macro nowcasting and scenario analysis.
 
 
