@@ -1,50 +1,156 @@
-# Nowcasting Canada — Macro BVAR
+# Bayesian VAR Nowcasting of Canadian Macroeconomic Indicators
 
-## Introduction
-This project (developed at the start of the COVID‑19 pandemic) demonstrates Bayesian vector autoregression (BVAR) applied to Canadian macroeconomic indicators to evaluate how alternative shock scenarios (for example, housing‑price or CPI shocks) affect short‑term forecasts. The implementation is Colab‑first and integrates R's `BVAR` package with Python via `rpy2`, producing interactive Plotly visualizations embedded in the notebook.
+**Hierarchical Bayesian time-series modelling for short-horizon forecasts and conditional scenario analysis of Canadian CPI, House Price Index, Housing Starts, and Household Income, built during the COVID-19 pandemic to support credit risk, stress testing, and macro scenario workflows.**
 
-Here is a model results snapshot showing the impact of a Canada CPI shock on Canada Housing Starts:
-![IRF Function Results](Figs/IRF2.jpg)
+![BVAR Conditional Forecast: Impact of a Canadian CPI Shock on Housing Starts](Figs/IRF2.jpg)
 
-## Data Summary
-- The notebook uses monthly macro series (CPI, HPI, Housing Starts, nominal household income, unemployment, plus a large set of FRED‑MD variables). Series are transformed for stationarity (log differences and appropriate first/second differences) and merged.
-- Variables are explored with correlation matrices, clustered dendrograms, and other visual diagnostics to guide factor selection.
+## Executive Summary
 
-## Models used and implemented
-- Core model: Bayesian Vector Autoregression (BVAR) estimated with the R package `BVAR`.
--- Priors tested and demonstrated in the notebook:
-	- Minnesota / Litterman prior (`bv_minnesota`) — standard shrinkage toward random-walk behavior.
-	- Sum‑of‑coefficients (SOC) prior (`bv_soc`) — (Doan et al., 1984).
-	- Single‑unit‑root (SUR) prior (`bv_sur` / `bv_dummy`) — (Sims; Sims & Zha).
-	- Impulse Response Functions (IRFs): computed with `bv_irf` (or `irf()` on fitted objects) to show how shocks propagate over the forecast horizon; the notebook plots IRFs with confidence bands.
+This project implements a **Bayesian Vector Autoregression (BVAR)** to nowcast and forecast a set of core Canadian macroeconomic series under both unconditional and shock-driven scenarios. The model was developed during the early phase of the COVID-19 pandemic, when classical frequentist VARs were unstable and informed priors were essential for producing usable forecasts.
 
-- Estimation details: hierarchical prior selection via `bv_priors`, Metropolis‑Hastings (`bv_metropolis` / `bv_mh`) tuning for hyperparameters.
+The deliverable is a reproducible, Colab-ready notebook that:
 
-## Model convergence results
-- The notebook includes standard Markov chain Monte Carlo (MCMC) diagnostics: trace and density plots for hyperparameters and selected coefficients, Geweke within‑chain diagnostics, and Gelman–Rubin (potential scale reduction) across parallel chains (via R's `coda` functions such as `as.mcmc()` and `gelman.diag()`).
+- Estimates a 4-variable BVAR on monthly Canadian macro data using the R `BVAR` package, called from Python through `rpy2`.
+- Tests three prior families (Minnesota/Litterman, sum-of-coefficients, single-unit-root) with hierarchical hyperparameter selection via Metropolis-Hastings.
+- Generates **impulse response functions (IRFs)** and **conditional forecasts** along user-specified paths for variables such as the House Price Index.
+- Validates convergence with Geweke and Gelman-Rubin diagnostics across parallel MCMC chains.
+- Produces interactive Plotly visualizations with confidence bands for direct review by risk and economics stakeholders.
 
-- Trace and density plots (MCMC diagnostics):
-  
-![Convergence](Figs/Convergence-Analysis.png)
+## Business Context and Use Cases
 
-- Model residuals and forecast plots:
-  
-![Residuals](Figs/Residuals.png)
+Forecasts of inflation, housing prices, household income, and housing activity are direct inputs into a wide range of bank, insurer, and asset-manager models. This project was framed to feed exactly those workflows:
 
-- Impulse Response Function (IRF):
-  
-![IRF Function Results](Figs/IRF.png)
+- **Credit risk modelling:** macroeconomic conditioning variables for **PD**, **LGD**, and **EAD** models under IFRS 9 / CECL forward-looking provisioning.
+- **Stress testing and scenario analysis:** generation of conditional paths (e.g. a sustained CPI shock or a house-price correction) for use in regulatory and internal stress tests.
+- **Portfolio and asset-allocation research:** quantification of joint dynamics and shock propagation across price, housing, and income variables.
+- **Banking and credit decision-making:** consistent macro forecasts underpinning origination strategy, capital planning, and risk appetite.
+- **Investment and economic research:** uncertainty-aware nowcasts with explicit confidence bands rather than point forecasts.
 
-Example settings used in the notebook (illustrative): `n_draw=15000`, `n_burn=5000`, `n_thin=1`; Metropolis tuning with `scale_hess` and `adjust_acc` to target acceptance rates (~0.25–0.45). Parallel runs are collected as a list of `bvar` objects and converted to Python for plotting. The notebook shows visually acceptable convergence for the example runs, but diagnostics should be re-checked if you change data or priors.
+## Why Bayesian VAR
 
-## Conclusion
-- Demonstrates application of Bayesian time‑series modeling (BVAR) to macro nowcasting and scenario analysis.
+Classical VARs over-fit when the system is rich and data are short, a problem amplified by the COVID-19 break in macro time series. A Bayesian approach addresses this directly:
+
+- **Priors regularize estimation** when the parameter space is large relative to sample size.
+- **Posterior distributions** provide native uncertainty quantification, so every forecast comes with credible bands rather than a single number.
+- **Conditional forecasting** supports clean "what-if" analysis along a chosen variable's path, which maps directly to stress-test narratives.
+
+## Data
+
+| Series | Symbol | Frequency | Role |
+|---|---|---|---|
+| Canada CPI (All-items) | `cpi_Canada` | Monthly | Inflation |
+| Canada House Price Index | `HPI_Canada` | Monthly | Housing prices |
+| Canada Housing Starts | `Housing_Starts_Canada` | Monthly | Housing activity |
+| Canada Nominal Household Income | `Nominal_HH_Income_CA` | Monthly | Income / demand |
+
+The estimated model uses **4 endogenous variables, 360 monthly observations, and 5 lags**. The notebook also documents an extended variable set (non-residential permits, nominal wages, real GDP, median family income, unemployment rate, household counts) and integrates the **FRED-MD** macro database via the `BVAR::fred_transform` helper for cross-border or extended specifications.
+
+Series are transformed for stationarity using log-differences and first/second differences as appropriate, with transformations driven by FRED-MD-style transformation codes. Variable groupings are explored using correlation matrices and hierarchical clustering dendrograms to inform factor selection.
+
+## Methodology
+
+### Model
+
+A Bayesian VAR of the form
+
+$$y_t = c + A_1 y_{t-1} + \dots + A_p y_{t-p} + \varepsilon_t, \quad \varepsilon_t \sim \mathcal{N}(0, \Sigma)$$
+
+estimated with hierarchical priors and posterior simulation via Metropolis-Hastings.
+
+### Priors
+
+- **Minnesota / Litterman prior** (`bv_minnesota`): shrinks dynamics toward independent random walks, with separate tightness parameters for own-lag (lambda), cross-lag (alpha), and residual-variance (psi) components.
+- **Sum-of-coefficients prior** (`bv_soc`): pushes the sum of own-lag coefficients toward 1 and cross-lag sums toward 0, supporting unit-root-like behaviour (Doan, Litterman, Sims, 1984).
+- **Single-unit-root prior** (`bv_sur`): adds a dummy observation consistent with cointegration of levels (Sims; Sims and Zha).
+
+Hyperparameters are treated hierarchically through `bv_priors(hyper = "auto")` and sampled via `bv_metropolis` with adaptive `scale_hess` tuning targeting an acceptance rate in the **0.25 to 0.45** range.
+
+### Estimation
+
+Representative configuration used in the notebook:
+
+```r
+priors_app <- bv_priors(hyper = "auto", mn = mn, soc = soc, sur = sur)
+mh         <- bv_metropolis(scale_hess = 1, adjust_acc = TRUE,
+                            acc_lower = 0.25, acc_upper = 0.45,
+                            acc_change = 0.01)
+run_ca     <- bvar(x_ca_normal, lags = 5,
+                   n_draw = 15000, n_burn = 5000, n_thin = 1,
+                   priors = priors_app, mh = mh)
+```
+
+Multiple chains are run in parallel with `par_bvar` for between-chain diagnostics.
+
+### Forecasting and Scenario Analysis
+
+- **Unconditional forecasts:** posterior predictive distributions over a 16-month horizon with multiple confidence bands.
+- **Conditional forecasts:** posterior paths conditional on a user-specified trajectory for a chosen variable (e.g. `cond_var = "HPI_Canada"`), using the model's `predict` method with `cond_path`. This is the primary mechanism used for scenario stress testing.
+- **Impulse Response Functions:** `bv_irf(horizon = 16, identification = TRUE)` with confidence bands at multiple credible levels.
+
+## Convergence and Diagnostics
+
+The notebook applies the standard MCMC diagnostic toolkit via R's `coda` package:
+
+- **Trace and density plots** for hyperparameters and selected coefficients.
+- **Geweke (1992)** within-chain convergence test (`geweke.diag`).
+- **Gelman-Rubin (1992)** between-chain potential scale reduction factor across parallel chains (`gelman.diag`).
+
+Trace and density plots:
+
+![MCMC Trace and Density Diagnostics](Figs/Convergence-Analysis.png)
+
+Residual diagnostics across the four endogenous variables:
+
+![Model Residuals](Figs/Residuals.png)
+
+Impulse response functions with credible bands:
+
+![Impulse Response Functions](Figs/IRF.png)
+
+The example runs in the notebook show visually acceptable convergence; diagnostics should be re-evaluated whenever data, priors, or sampler settings change.
 
 
+## Tech Stack
 
+- **Languages:** Python 3, R
+- **Core libraries:** R `BVAR`, R `coda`, R `parallel`, `rpy2`
+- **Data and analysis:** `pandas`, `numpy`, `scipy`, `seaborn`
+- **Visualization:** `plotly` (interactive forecast and IRF plots), `matplotlib`
+- **Environment:** Google Colab (Jupyter), with Google Drive integration for input data
 
+## How to Run
 
+The notebook is designed to run end-to-end in Google Colab.
 
+1. Open the notebook directly in Colab via the badge in the first cell, or upload `Bayesian_Vector_Autoregression_(BVAR).ipynb` to your Colab workspace.
+2. Place the input macro spreadsheet (`macro_inputs.xlsx`) and the FRED-MD description workbook in your Google Drive at the paths referenced in the data-loading cells, or update those paths to your own location.
+3. Run the prerequisite cells to install the R `BVAR` and `coda` packages and configure `rpy2`.
+4. Execute the notebook sequentially: data preparation, factor selection, prior configuration, MCMC estimation, diagnostics, IRFs, and conditional forecasts.
 
+## Key Outputs
+
+- Multi-horizon **conditional forecasts** for CPI, House Price Index, Housing Starts, and Household Income with explicit credible bands.
+- **Impulse response functions** quantifying how shocks propagate across the four-variable system.
+- **MCMC convergence diagnostics** demonstrating the validity of the posterior approximation.
+- A reproducible, end-to-end **Bayesian forecasting pipeline** suitable for adaptation to other macro nowcasting and stress-testing problems.
+
+## Skills Demonstrated
+
+- Bayesian time-series modelling and prior specification
+- MCMC estimation, diagnostics, and parallelization
+- Macroeconomic data engineering and stationarity transformations
+- Conditional forecasting and scenario design for stress testing
+- Cross-language workflows integrating R and Python via `rpy2`
+- Interactive financial visualization with Plotly
+- Translation of quantitative methods into risk and finance use cases
+
+## References
+
+- Doan, T., Litterman, R., Sims, C., 1984. Forecasting and conditional projection using realistic prior distributions. *Econometric Reviews*, 3(1), 1-100.
+- Giannone, D., Lenza, M., Primiceri, G.E., 2015. Prior selection for vector autoregressions. *Review of Economics and Statistics*, 97(2), 436-451.
+- Kilian, L., Lütkepohl, H., 2017. *Structural Vector Autoregressive Analysis*. Cambridge University Press.
+- Kuschnig, N., Vashold, L., 2019. BVAR: Bayesian Vector Autoregressions with Hierarchical Prior Selection in R.
+- Geweke, J., 1992. Evaluating the accuracy of sampling-based approaches to the calculation of posterior moments.
+- Gelman, A., Rubin, D.B., 1992. Inference from iterative simulation using multiple sequences.
 
 
