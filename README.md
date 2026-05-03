@@ -2,7 +2,7 @@
 
 **Hierarchical Bayesian time-series modelling for short-horizon forecasts and conditional scenario analysis of Canadian CPI, House Price Index, Housing Starts, and Household Income, built during the COVID-19 pandemic to support credit risk, stress testing, and macro scenario workflows.**
 
-![BVAR Conditional Forecast: Impact of a Canadian CPI Shock on Housing Starts](Figs/IRF2.jpg)
+![BVAR Project Overview](Figs/BVAR_overview.png)
 
 ## Executive Summary
 
@@ -15,6 +15,9 @@ The deliverable is a reproducible, Colab-ready notebook that:
 - Generates **impulse response functions (IRFs)** and **conditional forecasts** along user-specified paths for variables such as the House Price Index.
 - Validates convergence with Geweke and Gelman-Rubin diagnostics across parallel MCMC chains.
 - Produces interactive Plotly visualizations with confidence bands for direct review by risk and economics stakeholders.
+
+![BVAR Conditional Forecast: Impact of a Canadian CPI Shock on Housing Starts](Figs/IRF2.jpg)
+
 
 ## Business Context and Use Cases
 
