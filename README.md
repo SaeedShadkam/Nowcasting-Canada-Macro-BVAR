@@ -121,14 +121,6 @@ The example runs in the notebook show visually acceptable convergence; diagnosti
 - **Visualization:** `plotly` (interactive forecast and IRF plots), `matplotlib`
 - **Environment:** Google Colab (Jupyter), with Google Drive integration for input data
 
-## How to Run
-
-The notebook is designed to run end-to-end in Google Colab.
-
-1. Open the notebook directly in Colab via the badge in the first cell, or upload `Bayesian_Vector_Autoregression_(BVAR).ipynb` to your Colab workspace.
-2. Place the input macro spreadsheet (`macro_inputs.xlsx`) and the FRED-MD description workbook in your Google Drive at the paths referenced in the data-loading cells, or update those paths to your own location.
-3. Run the prerequisite cells to install the R `BVAR` and `coda` packages and configure `rpy2`.
-4. Execute the notebook sequentially: data preparation, factor selection, prior configuration, MCMC estimation, diagnostics, IRFs, and conditional forecasts.
 
 ## Key Outputs
 
@@ -137,15 +129,6 @@ The notebook is designed to run end-to-end in Google Colab.
 - **MCMC convergence diagnostics** demonstrating the validity of the posterior approximation.
 - A reproducible, end-to-end **Bayesian forecasting pipeline** suitable for adaptation to other macro nowcasting and stress-testing problems.
 
-## Skills Demonstrated
-
-- Bayesian time-series modelling and prior specification
-- MCMC estimation, diagnostics, and parallelization
-- Macroeconomic data engineering and stationarity transformations
-- Conditional forecasting and scenario design for stress testing
-- Cross-language workflows integrating R and Python via `rpy2`
-- Interactive financial visualization with Plotly
-- Translation of quantitative methods into risk and finance use cases
 
 ## References
 
